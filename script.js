@@ -10,6 +10,8 @@ let chunks = []; //media data in chunks
 
 let recordFlag = false;
 
+let transparentColor = "transparent";
+
 const constraints = {
     video: true,
     audio: true
@@ -61,6 +63,28 @@ recordBtnContainerElement.addEventListener("click", (e) => {
     }
 });
 
+captureBtnContainerElement.addEventListener("click", (e) => {
+   console.log("Clicked");
+
+    let canvas = document.createElement("canvas");
+    canvas.width = videoElement.videoWidth;
+    canvas.height = videoElement.videoHeight;
+
+    let tool = canvas.getContext("2d");
+    tool.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+    
+    //filters
+    tool.fillStyle = transparentColor;
+    tool.fillRect(0, 0, canvas.width, canvas.height);
+
+    const imageURL = canvas.toDataURL("image/jpeg");
+    let a = document.createElement("a");
+    a.href = imageURL;
+    a.download = "image.jpeg";
+
+    a.click();
+});
+
 let timerID;
 
 let counter = 0; //refer total seconds
@@ -99,4 +123,22 @@ function stopTimer() {
     clearInterval(timerID);
     timerElement.innerText = "00:00:00";
 }
+
+//filtering logic
+const allFilters = document.querySelectorAll(".filter");
+const filterLayerElement = document.querySelector(".filter-layer");
+
+allFilters.forEach((filterItem) => {
+    filterItem.addEventListener("click", () =>{
+        console.log("clicked")
+        //set
+        // transparentColor = filterItem.style.backgroundColor;
+        //get
+        transparentColor = getComputedStyle(filterItem).getPropertyValue("background-color");
+
+        //set
+        filterLayerElement.style.backgroundColor = transparentColor;
+    });
+});
+
 
