@@ -36,13 +36,25 @@ navigator.mediaDevices.getUserMedia(constraints)
     recorder.addEventListener("stop", (e) => {
         //conversion media chunks to video
         const blob = new Blob(chunks, { type: "video/mp4"});
-        const videoUrl = URL.createObjectURL(blob);
+        // const videoUrl = URL.createObjectURL(blob);
 
-        const a = document.createElement("a");
-        a.href = videoUrl;
-        a.download = "stream.mp4";
+        // const a = document.createElement("a");
+        // a.href = videoUrl;
+        // a.download = "stream.mp4";
         
-        a.click();
+        // a.click();
+
+        if (db) {
+            const videoId = shortid();
+            const dbTransaction = db.transaction("video", "readwrite");
+            const videoStore = dbTransaction.objectStore("video");
+            const videoEntry = {
+                id: `vid-${videoId}`,
+                blobData: blob
+            }
+
+            videoStore.add(videoEntry);
+        }
     });
 });
 
@@ -64,7 +76,7 @@ recordBtnContainerElement.addEventListener("click", (e) => {
 });
 
 captureBtnContainerElement.addEventListener("click", (e) => {
-   console.log("Clicked");
+   captureBtnElement.classList.add("scale-capture");
 
     let canvas = document.createElement("canvas");
     canvas.width = videoElement.videoWidth;
@@ -78,11 +90,29 @@ captureBtnContainerElement.addEventListener("click", (e) => {
     tool.fillRect(0, 0, canvas.width, canvas.height);
 
     const imageURL = canvas.toDataURL("image/jpeg");
-    let a = document.createElement("a");
-    a.href = imageURL;
-    a.download = "image.jpeg";
+    
+    // let a = document.createElement("a");
+    // a.href = imageURL;
+    // a.download = "image.jpeg";
 
-    a.click();
+    // a.click();
+
+    if (db) {
+        const imageId = shortid();
+        const dbTransaction = db.transaction("image", "readwrite");
+        const imageStore = dbTransaction.objectStore("image");
+        const imageEntry = {
+            id: `img-${imageId}`,
+            url: imageURL
+        }
+
+        imageStore.add(imageEntry);
+    }
+
+    setTimeout(() => {
+        captureBtnElement.classList.remove("scale-capture");
+    }, 500)
+
 });
 
 let timerID;
